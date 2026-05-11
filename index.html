@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEXUS — AI Smart Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- ══════════════════ BOOT SCREEN ══════════════════ -->
+  <div id="boot-screen">
+    <div class="boot-logo">
+      <div class="boot-hex"></div>
+      <div class="boot-title">NEXUS</div>
+      <div class="boot-sub">AI Smart Home OS v4.2.1</div>
+      <div class="boot-bar-wrap"><div class="boot-bar"></div></div>
+      <div class="boot-lines" id="boot-lines"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ MAIN APP ══════════════════ -->
+  <div id="app" class="hidden">
+
+    <!-- SIDEBAR -->
+    <nav id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-hex">⬡</div>
+        <span>NEXUS</span>
+      </div>
+      <ul class="nav-links">
+        <li class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">◈</span><span class="nav-label">Dashboard</span>
+        </li>
+        <li class="nav-item" data-page="devices">
+          <span class="nav-icon">◉</span><span class="nav-label">Devices</span>
+        </li>
+        <li class="nav-item" data-page="alerts">
+          <span class="nav-icon">⚠</span><span class="nav-label">Alerts</span>
+          <span class="nav-badge" id="alert-badge">0</span>
+        </li>
+        <li class="nav-item" data-page="diagnose">
+          <span class="nav-icon">⌬</span><span class="nav-label">Diagnose</span>
+        </li>
+        <li class="nav-item" data-page="settings">
+          <span class="nav-icon">⚙</span><span class="nav-label">Settings</span>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="api-status" id="api-status-dot">
+          <span class="dot"></span><span id="api-status-label">Connecting…</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- TOPBAR -->
+    <header id="topbar">
+      <button id="hamburger">☰</button>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-right">
+        <div class="clock" id="clock">00:00:00</div>
+        <button class="refresh-btn" id="global-refresh" title="Refresh data">↻</button>
+      </div>
+    </header>
+
+    <!-- PAGE CONTAINER -->
+    <main id="main-content">
+
+      <!-- ── DASHBOARD PAGE ── -->
+      <section id="page-dashboard" class="page active">
+        <div class="stat-cards" id="stat-cards">
+          <div class="stat-card" id="card-total">
+            <div class="stat-icon">⬡</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-total">—</div>
+              <div class="stat-label">Total Devices</div>
+            </div>
+            <div class="card-glow"></div>
+          </div>
+          <div class="stat-card green" id="card-online">
+            <div class="stat-icon">◉</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-online">—</div>
+              <div class="stat-label">Online</div>
+            </div>
+            <div class="card-glow"></div>
+          </div>
+          <div class="stat-card orange" id="card-alerts">
+            <div class="stat-icon">⚠</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-alerts">—</div>
+              <div class="stat-label">Active Alerts</div>
+            </div>
+            <div class="card-glow"></div>
+          </div>
+          <div class="stat-card purple" id="card-power">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-power">—</div>
+              <div class="stat-label">Power (W)</div>
+            </div>
+            <div class="card-glow"></div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Health Ring -->
+          <div class="glass-card health-card">
+            <div class="card-header">System Health</div>
+            <div class="health-ring-wrap">
+              <canvas id="health-canvas" width="180" height="180"></canvas>
+              <div class="health-center">
+                <div class="health-score" id="health-score">—</div>
+                <div class="health-grade" id="health-grade">–</div>
+              </div>
+            </div>
+            <div class="health-msg" id="health-msg">Loading…</div>
+          </div>
+
+          <!-- Energy Graph -->
+          <div class="glass-card energy-card">
+            <div class="card-header">Energy Usage <span class="card-sub">Last 24h</span></div>
+            <canvas id="energy-canvas" width="400" height="160"></canvas>
+          </div>
+
+          <!-- AI Predictions -->
+          <div class="glass-card predict-card">
+            <div class="card-header">AI Predictions</div>
+            <ul class="predict-list" id="predict-list"></ul>
+          </div>
+        </div>
+
+        <!-- Live Devices Grid -->
+        <div class="section-header">
+          <h2>Live Devices</h2>
+          <button class="btn-cyber" id="dash-refresh">↻ Refresh</button>
+        </div>
+        <div class="devices-grid" id="dash-devices-grid"></div>
+      </section>
+
+      <!-- ── DEVICES PAGE ── -->
+      <section id="page-devices" class="page">
+        <div class="page-toolbar">
+          <input type="text" class="search-input" id="device-search" placeholder="Search devices…"/>
+          <select class="cyber-select" id="filter-status">
+            <option value="">All Status</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+            <option value="warning">Warning</option>
+            <option value="error">Error</option>
+          </select>
+          <select class="cyber-select" id="filter-type">
+            <option value="">All Types</option>
+            <option value="thermostat">Thermostat</option>
+            <option value="camera">Camera</option>
+            <option value="light">Light</option>
+            <option value="lock">Lock</option>
+            <option value="speaker">Speaker</option>
+            <option value="sensor">Sensor</option>
+          </select>
+        </div>
+        <div class="devices-grid" id="devices-grid"></div>
+      </section>
+
+      <!-- ── ALERTS PAGE ── -->
+      <section id="page-alerts" class="page">
+        <div class="alert-stats" id="alert-stats"></div>
+        <div class="page-toolbar">
+          <h2 class="section-h2">Active Alerts</h2>
+          <button class="btn-cyber btn-danger" id="resolve-all-btn">Resolve All</button>
+        </div>
+        <div class="alerts-list" id="alerts-list"></div>
+      </section>
+
+      <!-- ── DIAGNOSE PAGE ── -->
+      <section id="page-diagnose" class="page">
+        <div class="diagnose-header">
+          <div class="glass-card scan-card">
+            <div class="card-header">System Scan</div>
+            <div class="scan-controls">
+              <button class="btn-cyber btn-glow" id="scan-all-btn">⌬ Scan All Devices</button>
+              <label class="toggle-wrap">
+                <span>Auto-Fix</span>
+                <div class="toggle" id="autofix-toggle">
+                  <input type="checkbox" id="autofix-cb"/>
+                  <span class="slider"></span>
+                </div>
+              </label>
+            </div>
+            <div class="scan-animation" id="scan-anim">
+              <div class="scan-ring"></div>
+              <div class="scan-ring r2"></div>
+              <div class="scan-ring r3"></div>
+              <div class="scan-icon">⌬</div>
+            </div>
+            <div class="scan-status" id="scan-status">Ready to scan</div>
+          </div>
+
+          <div class="glass-card reco-card">
+            <div class="card-header">AI Recommendations</div>
+            <ul class="reco-list" id="reco-list"></ul>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h2>Device Diagnostics</h2>
+        </div>
+        <div class="diag-list" id="diag-list"></div>
+      </section>
+
+      <!-- ── SETTINGS PAGE ── -->
+      <section id="page-settings" class="page">
+        <div class="settings-grid">
+          <div class="glass-card">
+            <div class="card-header">Connection</div>
+            <div class="setting-row">
+              <span>Backend API</span>
+              <span class="api-url" id="settings-api-url">http://localhost:8000</span>
+            </div>
+            <div class="setting-row">
+              <span>Status</span>
+              <span id="settings-conn-status" class="status-tag">—</span>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-header">Notifications</div>
+            <div class="setting-row">
+              <span>Toast Alerts</span>
+              <div class="toggle"><input type="checkbox" id="s-toast" checked/><span class="slider"></span></div>
+            </div>
+            <div class="setting-row">
+              <span>Auto-Refresh (10s)</span>
+              <div class="toggle"><input type="checkbox" id="s-autorefresh" checked/><span class="slider"></span></div>
+            </div>
+            <div class="setting-row">
+              <span>Sound Effects</span>
+              <div class="toggle"><input type="checkbox" id="s-sound"/><span class="slider"></span></div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-header">Display</div>
+            <div class="setting-row">
+              <span>Neon Animations</span>
+              <div class="toggle"><input type="checkbox" id="s-anim" checked/><span class="slider"></span></div>
+            </div>
+            <div class="setting-row">
+              <span>Particle Effects</span>
+              <div class="toggle"><input type="checkbox" id="s-particles" checked/><span class="slider"></span></div>
+            </div>
+            <div class="setting-row">
+              <span>Scan Lines</span>
+              <div class="toggle"><input type="checkbox" id="s-scanlines"/><span class="slider"></span></div>
+            </div>
+          </div>
+          <div class="glass-card full-width">
+            <div class="card-header">System Info</div>
+            <div class="sysinfo-grid" id="sysinfo-grid"></div>
+            <button class="btn-cyber btn-glow" id="save-settings-btn" style="margin-top:1.5rem">⚙ Save Settings</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ══════════════════ DEVICE MODAL ══════════════════ -->
+  <div id="device-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ VOICE ASSISTANT ══════════════════ -->
+  <div id="voice-fab" title="Voice Assistant">
+    <span class="mic-icon">🎙</span>
+    <div class="fab-pulse"></div>
+  </div>
+
+  <div id="voice-panel" class="hidden">
+    <div class="voice-header">
+      <span class="voice-title">NEXUS AI</span>
+      <button id="voice-close">✕</button>
+    </div>
+    <div class="voice-chat" id="voice-chat"></div>
+    <div class="voice-chips" id="voice-chips"></div>
+    <div class="voice-input-row">
+      <input type="text" id="voice-input" placeholder="Ask NEXUS anything…"/>
+      <button id="voice-send">➤</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════ TOAST ══════════════════ -->
+  <div id="toast-container"></div>
+
+  <!-- SCANLINE OVERLAY -->
+  <div id="scanlines" class="hidden"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
